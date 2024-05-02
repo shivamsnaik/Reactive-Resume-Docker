@@ -49,6 +49,7 @@ jobs: # single job in the workflow, configured to run on the latest available ve
       - name: Build and push Docker image
         id: push
         uses: docker/build-push-action
+        with:
           context: .
           push: true
           tags: ${{ steps.meta.outputs.tags }}
