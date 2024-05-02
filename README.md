@@ -87,6 +87,13 @@ Start creating your standout resume with Reactive Resume today!
   </picture>
 </a>
 
+## How to build the Docker Image
+
+```
+DOCKER_BUILDKIT=1 docker build -t resume-builder-docker .
+```
+**Note:** Docker BuildKit environment variable is set to use the BuildKit for building the image.
+
 ## License
 
 Reactive Resume is packaged and distributed using the [MIT License](/LICENSE.md) which allows for commercial use, distribution, modification and private use provided that all copies of the software contain the same license and copyright.
