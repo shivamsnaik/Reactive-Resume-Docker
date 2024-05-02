@@ -1,0 +1,63 @@
+name: Create and publish Docker images to the Github Packages.
+
+on: # This workflow will execute when code changes are pushed to the "main" branch.
+  push:
+    branches: ["main"]
+
+env: # Environment variables for later use for referencing
+  REGISTRY: ghcr.io
+  IMAGE_NAME: "resume-builder-docker"
+
+jobs: # single job in the workflow, configured to run on the latest available version of Ubuntu (arm64).
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    name: Build on Ubuntu-22.04 arm64
+    id: runcmd # Makes sure the architecture is arm64
+    with: 
+      arch: arm64
+      distro: ubuntu22.04
+
+    permissions: # Sets permissions granted to the GITHUB_TOKEN for the actions in this job 
+      contents: read
+      packages: write
+      attestations: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@4
+
+      # -- Uses "docker/login-action" to log in to container registry using the account and password that will publish the packages. --
+      - name: Log in to the Container Registry 
+        uses: docker/login-action
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # -- Uses "docker/metadata-action": Extracts tags and labels that will be applied to the specificed image. --
+      #     The id "meta" alows the output of this step to be referenced in subsequent steps.
+      #     The "images" value provides the base name for the tags and labels.
+      - name: Extract metadata {tags, labels} for Docker
+        id: meta
+        uses: docker/metadata-action
+        with:
+          images: {{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      # -- Uses "docker/build-push-action" to build image, based on repository's Dockerfile.
+      #     If build succeeds, it pushes the image to GitHub Packages.
+      #     "context" is used to define build's context as the set of files located in the specified path.
+      - name: Build and push Docker image
+        id: push
+        uses: docker/build-push-action
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Generate Artifact Attestation
+        uses: actions/attest-build-provenance
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
+      
