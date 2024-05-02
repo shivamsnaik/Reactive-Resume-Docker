@@ -41,7 +41,7 @@ jobs: # single job in the workflow, configured to run on the latest available ve
         id: meta
         uses: docker/metadata-action
         with:
-          images: {{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
       # -- Uses "docker/build-push-action" to build image, based on repository's Dockerfile.
       #     If build succeeds, it pushes the image to GitHub Packages.
