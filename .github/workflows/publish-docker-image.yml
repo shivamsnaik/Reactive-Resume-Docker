@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  IMAGE: amruthpillai/reactive-resume
+  IMAGE: shivamsnaik/reactive-resume-docker
 
 jobs:
   build:
